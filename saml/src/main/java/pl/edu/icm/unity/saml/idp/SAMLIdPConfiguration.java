@@ -82,6 +82,7 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 
 	public final boolean signMetadata;
 	public final boolean setNotBeforeConstraint;
+	public final boolean ignoreAttributeConsumingServiceIndex;
 
 	
 	private boolean signRespNever;
@@ -103,8 +104,9 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 			TranslationProfile translationProfile, boolean skipConsent, Set<ActiveValueClient> activeValueClient,
 			IdpPolicyAgreementsConfiguration policyAgreements, X509Credential credential,
 			X509CertChainValidator chainValidator, boolean signMetadata,
-			Optional<AdditionalyAdvertisedCredential> additionalyAdvertisedCredential, 
-			boolean setNotBeforeConstraint)
+			Optional<AdditionalyAdvertisedCredential> additionalyAdvertisedCredential,
+			boolean setNotBeforeConstraint,
+			boolean ignoreAttributeConsumingServiceIndex)
 	{
 		super(trustedMetadataSources, publishMetadata, metadataURLPath, ourMetadataFilePath);
 		this.authenticationTimeout = authenticationTimeout;
@@ -131,6 +133,7 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 		this.signMetadata = signMetadata;
 		this.additionallyAdvertisedCredential = additionalyAdvertisedCredential;
 		this.setNotBeforeConstraint = setNotBeforeConstraint;
+		this.ignoreAttributeConsumingServiceIndex = ignoreAttributeConsumingServiceIndex;
 		load();
 	}
 
@@ -542,6 +545,7 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 		private boolean signMetadata;
 		private Optional<AdditionalyAdvertisedCredential> additionallyAdvertisedCredential = Optional.empty();
 		private boolean setNotBeforeConstraint;
+		private boolean ignoreAttributeConsumingServiceIndex;
 		
 		private SAMLIdPConfigurationBuilder()
 		{
@@ -716,16 +720,23 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 			this.setNotBeforeConstraint = setNotBeforeConstraint;
 			return this;
 		}
+
+		public SAMLIdPConfigurationBuilder withIgnoreAttributeConsumingServiceIndex(boolean ignoreAttributeConsumingServiceIndex)
+		{
+			this.ignoreAttributeConsumingServiceIndex = ignoreAttributeConsumingServiceIndex;
+			return this;
+		}
 		
 
 		public SAMLIdPConfiguration build()
 		{
 			return new SAMLIdPConfiguration(trustedMetadataSources, publishMetadata, metadataURLPath,
-					ourMetadataFilePath, authenticationTimeout, signResponses, signAssertion, credentialName,
-					truststore, validityPeriod, requestValidityPeriod, issuerURI, returnSingleAssertion, spAcceptPolicy,
-					userCanEditConsent, trustedServiceProviders, groupChooser, identityTypeMapper, userImportConfigs,
-					translationProfile, skipConsent, activeValueClient, policyAgreements, credential, chainValidator,
-					signMetadata, additionallyAdvertisedCredential, setNotBeforeConstraint);
+				       ourMetadataFilePath, authenticationTimeout, signResponses, signAssertion, credentialName,
+				       truststore, validityPeriod, requestValidityPeriod, issuerURI, returnSingleAssertion, spAcceptPolicy,
+				       userCanEditConsent, trustedServiceProviders, groupChooser, identityTypeMapper, userImportConfigs,
+				       translationProfile, skipConsent, activeValueClient, policyAgreements, credential, chainValidator,
+				       signMetadata, additionallyAdvertisedCredential, setNotBeforeConstraint,
+				       ignoreAttributeConsumingServiceIndex);
 		}
 	}
 }

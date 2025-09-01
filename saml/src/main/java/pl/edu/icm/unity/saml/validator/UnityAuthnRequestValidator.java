@@ -27,7 +27,7 @@ import java.util.Set;
  * <li> subject must not be set
  * <li> requestedAuthnContext must not be set
  * <li> AssertionConsumerServiceIndex must not be set
- * <li> AttributeConsumingServiceIndex must not be set
+ * <li> AttributeConsumingServiceIndex must not be set (unless configured to ignore)
  * <li> AssertionConsumingServiceURL must be set if it is not configured.
  * </ul>
  * This class is binding transparent, it can be used as a base for binding specific validators.
@@ -37,12 +37,15 @@ import java.util.Set;
 public class UnityAuthnRequestValidator extends SSOAuthnRequestValidator
 {
 	protected Set<String> knownRequesters;
-	
+	private final boolean ignoreAttributeConsumingServiceIndex;
+
 	public UnityAuthnRequestValidator(String consumerEndpointUri, SamlTrustChecker trustChecker,
-	                                  Duration requestValidity, ReplayAttackChecker replayChecker)
+					  Duration requestValidity, ReplayAttackChecker replayChecker,
+					  boolean ignoreAttributeConsumingServiceIndex)
 	{
 		super(consumerEndpointUri, trustChecker, requestValidity.toMillis(), replayChecker);
 		knownRequesters = new HashSet<>();
+		this.ignoreAttributeConsumingServiceIndex = ignoreAttributeConsumingServiceIndex;
 	}
 
 	/**
@@ -77,11 +80,11 @@ public class UnityAuthnRequestValidator extends SSOAuthnRequestValidator
 			throw new SAMLResponderException(SAMLConstants.SubStatus.STATUS2_REQUEST_UNSUPP,
 					"This implementation doesn't support authn " +
 					"requests with AssertionConsumerServiceIndex set.");
-		//4 - AttributeConsumingServiceIndex
-		if (req.isSetAttributeConsumingServiceIndex())
-			throw new SAMLResponderException(SAMLConstants.SubStatus.STATUS2_REQUEST_UNSUPP,
-					"This implementation doesn't support authn " +
-					"requests with AttributeConsumingServiceIndex set.");
+	       //4 - AttributeConsumingServiceIndex
+	       if (req.isSetAttributeConsumingServiceIndex() && !ignoreAttributeConsumingServiceIndex)
+		       throw new SAMLResponderException(SAMLConstants.SubStatus.STATUS2_REQUEST_UNSUPP,
+				       "This implementation doesn't support authn " +
+				       "requests with AttributeConsumingServiceIndex set.");
 		//5 - AssertionConsumingServiceURL mandatory if we don't know the requester
 		if (!req.isSetAssertionConsumerServiceURL() && !knownRequesters.contains(
 				req.getIssuer().getStringValue()))

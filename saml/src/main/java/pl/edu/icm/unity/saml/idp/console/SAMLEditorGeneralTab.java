@@ -289,11 +289,18 @@ public class SAMLEditorGeneralTab extends VerticalLayout implements ServiceEdito
 				.bind(SAMLServiceConfiguration::getAttrAssertionValidity, SAMLServiceConfiguration::setAttrAssertionValidity);
 		advancedLayout.addFormItem(attrAssertionValidity, msg.getMessage("SAMLEditorGeneralTab.attributeAssertionValidity"));
 
-		Checkbox returnSingleAssertion = new Checkbox(
-				msg.getMessage("SAMLEditorGeneralTab.returnSingleAssertion"));
-		configBinder.forField(returnSingleAssertion)
-				.bind(SAMLServiceConfiguration::isReturnSingleAssertion, SAMLServiceConfiguration::setReturnSingleAssertion);
-		advancedLayout.addFormItem(returnSingleAssertion, "");
+	       Checkbox returnSingleAssertion = new Checkbox(
+			       msg.getMessage("SAMLEditorGeneralTab.returnSingleAssertion"));
+	       configBinder.forField(returnSingleAssertion)
+			       .bind(SAMLServiceConfiguration::isReturnSingleAssertion, SAMLServiceConfiguration::setReturnSingleAssertion);
+	       advancedLayout.addFormItem(returnSingleAssertion, "");
+
+	       Checkbox ignoreAttributeConsumingServiceIndex = new Checkbox(
+			       msg.getMessage("SAMLEditorGeneralTab.ignoreAttributeConsumingServiceIndex"));
+	       configBinder.forField(ignoreAttributeConsumingServiceIndex)
+			       .bind(SAMLServiceConfiguration::isIgnoreAttributeConsumingServiceIndex,
+					       SAMLServiceConfiguration::setIgnoreAttributeConsumingServiceIndex);
+	       advancedLayout.addFormItem(ignoreAttributeConsumingServiceIndex, "");
 
 		AccordionPanel accordionPanel = new AccordionPanel(msg.getMessage("SAMLEditorGeneralTab.advanced"),
 				advancedLayout);

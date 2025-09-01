@@ -228,9 +228,10 @@ public class SamlParseServlet extends SamlHttpRequestServlet
 			SAMLIdPConfiguration samlConfig)
 			throws SAMLProcessingException, IOException, EopException
 	{
-		WebAuthRequestValidator validator = new WebAuthRequestValidator(endpointAddress, 
-				samlConfig.getAuthnTrustChecker(), samlConfig.requestValidityPeriod,
-				samlConfig.getReplayChecker());
+	       WebAuthRequestValidator validator = new WebAuthRequestValidator(endpointAddress,
+			       samlConfig.getAuthnTrustChecker(), samlConfig.requestValidityPeriod,
+			       samlConfig.getReplayChecker(),
+			       samlConfig.ignoreAttributeConsumingServiceIndex);
 		samlConfig.configureKnownRequesters(validator);
 		try
 		{

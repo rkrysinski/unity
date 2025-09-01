@@ -86,6 +86,7 @@ public class SAMLServiceConfiguration
 	private boolean skipUserImport;
 	private IdpPolicyAgreementsConfiguration policyAgreementConfig;
 	private boolean setNotBeforeConstraint;
+	private boolean ignoreAttributeConsumingServiceIndex;
  
 	
 	public SAMLServiceConfiguration(MessageSource msg, List<Group> allGroups)
@@ -116,6 +117,7 @@ public class SAMLServiceConfiguration
 		userImports = new ArrayList<>();
 		skipUserImport = false;
 		policyAgreementConfig = new IdpPolicyAgreementsConfiguration(msg);
+		ignoreAttributeConsumingServiceIndex = false;
 	}
 
 	public String toProperties(PKIManagement pkiManagement, MessageSource msg, FileStorageService fileService,
@@ -154,7 +156,9 @@ public class SAMLServiceConfiguration
 
 		raw.put(SamlIdpProperties.P + SamlIdpProperties.PUBLISH_METADATA, String.valueOf(publishMetadata));
 		raw.put(SamlIdpProperties.P + SamlIdpProperties.SIGN_METADATA, String.valueOf(signMetadata));
-		raw.put(SamlIdpProperties.P + SamlIdpProperties.SET_NOT_BEFORE_CONSTRAINT, String.valueOf(setNotBeforeConstraint));
+	       raw.put(SamlIdpProperties.P + SamlIdpProperties.SET_NOT_BEFORE_CONSTRAINT, String.valueOf(setNotBeforeConstraint));
+	       raw.put(SamlIdpProperties.P + SamlIdpProperties.IGNORE_ATTRIBUTE_CONSUMING_SERVICE_INDEX,
+			       String.valueOf(ignoreAttributeConsumingServiceIndex));
 		
 		raw.put(SamlIdpProperties.P + SamlIdpProperties.AUTHENTICATION_TIMEOUT,
 				String.valueOf(authenticationTimeout));
@@ -325,10 +329,12 @@ public class SAMLServiceConfiguration
 			signMetadata = samlIdpProperties.getBooleanValue(SamlProperties.SIGN_METADATA);
 		}
 
-		if (samlIdpProperties.isSet(SamlIdpProperties.SET_NOT_BEFORE_CONSTRAINT))
-		{
+	       if (samlIdpProperties.isSet(SamlIdpProperties.SET_NOT_BEFORE_CONSTRAINT))
+	       {
 			setNotBeforeConstraint = samlIdpProperties.getBooleanValue(SamlIdpProperties.SET_NOT_BEFORE_CONSTRAINT);
-		}
+	       }
+	       ignoreAttributeConsumingServiceIndex = samlIdpProperties
+			       .getBooleanValue(SamlIdpProperties.IGNORE_ATTRIBUTE_CONSUMING_SERVICE_INDEX);
 
 		
 		if (samlIdpProperties.isSet(SamlProperties.METADATA_SOURCE))
@@ -766,6 +772,16 @@ public class SAMLServiceConfiguration
 	public void setSetNotBeforeConstraint(boolean sendNotBeforeConstraint)
 	{
 		this.setNotBeforeConstraint = sendNotBeforeConstraint;
+	}
+
+	public boolean isIgnoreAttributeConsumingServiceIndex()
+	{
+		return ignoreAttributeConsumingServiceIndex;
+	}
+
+	public void setIgnoreAttributeConsumingServiceIndex(boolean ignoreAttributeConsumingServiceIndex)
+	{
+		this.ignoreAttributeConsumingServiceIndex = ignoreAttributeConsumingServiceIndex;
 	}
 
 	
