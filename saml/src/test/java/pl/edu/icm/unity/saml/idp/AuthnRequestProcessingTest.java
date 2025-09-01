@@ -35,7 +35,31 @@ public class AuthnRequestProcessingTest
 				"https://unity-idp.example", 
 				authnTrustChecker,
 				Duration.of(1000L, ChronoUnit.MILLIS),
-				new ReplayAttackChecker());
+				new ReplayAttackChecker(), false);
+		validator.addKnownRequester("https://unity-sp.example");
+
+		XMLExpandedMessage verifiableMessage = new XMLExpandedMessage(request.getXMLBeanDoc(),
+				request.getXMLBeanDoc().getAuthnRequest());
+		Throwable error = catchThrowable(() -> validator.validate(request.getXMLBeanDoc(), verifiableMessage));
+
+		assertThat(error).isNull();
+	}
+
+	@Test
+	public void shouldAcceptAuthnRequestWithAttributeConsumingServiceIndexWhenIgnored()
+	{
+		AuthnRequest request = new AuthnRequest(
+				new NameID("https://unity-sp.example", SAMLConstants.NFORMAT_ENTITY).getXBean());
+		request.getXMLBeanDoc().getAuthnRequest().setAttributeConsumingServiceIndex(1);
+
+		EnumeratedTrustChecker authnTrustChecker = new EnumeratedTrustChecker();
+		authnTrustChecker.addTrustedIssuer("https://unity-sp.example",
+				"https://unity-sp.example/return");
+		WebAuthRequestValidator validator = new WebAuthRequestValidator(
+				"https://unity-idp.example",
+				authnTrustChecker,
+				Duration.of(1000L, ChronoUnit.MILLIS),
+				new ReplayAttackChecker(), true);
 		validator.addKnownRequester("https://unity-sp.example");
 		
 		XMLExpandedMessage verifiableMessage = new XMLExpandedMessage(request.getXMLBeanDoc(), 
