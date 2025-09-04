@@ -261,6 +261,11 @@ public class SAMLEditorGeneralTab extends VerticalLayout implements ServiceEdito
 				.bind(SAMLServiceConfiguration::isSetNotBeforeConstraint, SAMLServiceConfiguration::setSetNotBeforeConstraint);
 		mainGeneralLayout.addFormItem(setNotBefore, "");
 
+		Checkbox ignoreAttributeConsumingServiceIndex = new Checkbox(
+				msg.getMessage("SAMLEditorGeneralTab.ignoreAttributeConsumingServiceIndex"));
+		configBinder.forField(ignoreAttributeConsumingServiceIndex)
+				.bind(SAMLServiceConfiguration::isIgnoreAttributeConsumingServiceIndex, SAMLServiceConfiguration::setIgnoreAttributeConsumingServiceIndex);
+		mainGeneralLayout.addFormItem(ignoreAttributeConsumingServiceIndex, "");
 		
 		return main;
 	}
