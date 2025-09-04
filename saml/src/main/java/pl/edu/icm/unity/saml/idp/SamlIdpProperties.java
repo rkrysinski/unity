@@ -51,6 +51,7 @@ public class SamlIdpProperties extends SamlProperties
 	public static final String RETURN_SINGLE_ASSERTION = "returnSingleAssertion";
 	public static final String SP_ACCEPT_POLICY = "spAcceptPolicy";
 	public static final String SET_NOT_BEFORE_CONSTRAINT = "setNotBeforeConstraint";
+	public static final String IGNORE_ATTRIBUTE_CONSUMING_SERVICE_INDEX = "ignoreAttributeConsumingServiceIndex";
 
 	
 	public static final String SPMETA_PREFIX = "acceptedSPMetadataSource.";
@@ -139,6 +140,9 @@ public class SamlIdpProperties extends SamlProperties
 				+ "level configuraiton is not neccessary."));
 		defaults.put(SET_NOT_BEFORE_CONSTRAINT, new PropertyMD("false").setCategory(samlCat).
 				setDescription("If true then notBefore constraint is added to SAML responses"));
+		defaults.put(IGNORE_ATTRIBUTE_CONSUMING_SERVICE_INDEX, new PropertyMD("false").setCategory(samlCat).
+				setDescription("Whether to ignore the AttributeConsumingServiceIndex attribute in SAML AuthnRequests. " +
+						"This is not compliant with the SAML specification, but may be required for interoperability with some SAML implementations."));
 		
 		defaults.put(ALLOWED_SP_PREFIX, new PropertyMD().setStructuredList(false).setCategory(samlCat).
 				setDescription("List of entries defining allowed Service Providers (clients). Used " +
