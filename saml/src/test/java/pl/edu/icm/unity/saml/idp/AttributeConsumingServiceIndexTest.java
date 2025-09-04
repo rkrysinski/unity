@@ -1,62 +1,88 @@
 package pl.edu.icm.unity.saml.idp;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 
 import org.junit.jupiter.api.Test;
 
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.elements.NameID;
+import eu.unicore.samly2.exceptions.SAMLResponderException;
 import eu.unicore.samly2.messages.XMLExpandedMessage;
 import eu.unicore.samly2.proto.AuthnRequest;
 import eu.unicore.samly2.trust.EnumeratedTrustChecker;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import pl.edu.icm.unity.saml.validator.WebAuthRequestValidator;
-import eu.unicore.samly2.exceptions.SAMLResponderException;
 
 /**
  * Tests handling of AttributeConsumingServiceIndex in AuthnRequest.
  */
 public class AttributeConsumingServiceIndexTest
 {
-	@Test
-	public void shouldIgnoreAttributeConsumingServiceIndexWhenConfigured()
-	{
-	AuthnRequest request = new AuthnRequest(new NameID("https://unity-sp.example", SAMLConstants.NFORMAT_ENTITY).getXBean());
-	request.getXMLBean().setAttributeConsumingServiceIndex(1);
-	EnumeratedTrustChecker checker = new EnumeratedTrustChecker();
-	checker.addTrustedIssuer("https://unity-sp.example", "https://unity-sp.example/return");
-	WebAuthRequestValidator validator = new WebAuthRequestValidator(
-		"https://unity-idp.example",
-		checker,
-		Duration.of(1000L, ChronoUnit.MILLIS),
-		new ReplayAttackChecker(),
-		true);
-	validator.addKnownRequester("https://unity-sp.example");
-	XMLExpandedMessage verifiable = new XMLExpandedMessage(request.getXMLBeanDoc(), request.getXMLBeanDoc().getAuthnRequest());
-	Throwable error = catchThrowable(() -> validator.validate(request.getXMLBeanDoc(), verifiable));
-	assertThat(error).isNull();
-	}
+private static final String SP_ENTITY_ID = "https://unity-sp.example";
+private static final String SP_RETURN_URL = "https://unity-sp.example/return";
+private static final String IDP_ENDPOINT_URI = "https://unity-idp.example";
 
-	@Test
-	public void shouldRejectAttributeConsumingServiceIndexWhenNotIgnored()
-	{
-	AuthnRequest request = new AuthnRequest(new NameID("https://unity-sp.example", SAMLConstants.NFORMAT_ENTITY).getXBean());
-	request.getXMLBean().setAttributeConsumingServiceIndex(1);
-	EnumeratedTrustChecker checker = new EnumeratedTrustChecker();
-	checker.addTrustedIssuer("https://unity-sp.example", "https://unity-sp.example/return");
-	WebAuthRequestValidator validator = new WebAuthRequestValidator(
-		"https://unity-idp.example",
-		checker,
-		Duration.of(1000L, ChronoUnit.MILLIS),
-		new ReplayAttackChecker(),
-		false);
-	validator.addKnownRequester("https://unity-sp.example");
-	XMLExpandedMessage verifiable = new XMLExpandedMessage(request.getXMLBeanDoc(), request.getXMLBeanDoc().getAuthnRequest());
-	Throwable error = catchThrowable(() -> validator.validate(request.getXMLBeanDoc(), verifiable));
-	assertThat(error).isInstanceOf(SAMLResponderException.class);
-	}
+@Test
+public void shouldIgnoreAttributeConsumingServiceIndexWhenConfigured()
+{
+AuthnRequest request = new AuthnRequest(new NameID(SP_ENTITY_ID, SAMLConstants.NFORMAT_ENTITY).getXBean());
+request.getXMLBean().setAttributeConsumingServiceIndex(1);
+EnumeratedTrustChecker checker = new EnumeratedTrustChecker();
+checker.addTrustedIssuer(SP_ENTITY_ID, SP_RETURN_URL);
+WebAuthRequestValidator validator = new WebAuthRequestValidator(
+IDP_ENDPOINT_URI,
+checker,
+Duration.ofSeconds(5),
+new ReplayAttackChecker(),
+true);
+validator.addKnownRequester(SP_ENTITY_ID);
+XMLExpandedMessage verifiable = new XMLExpandedMessage(request.getXMLBeanDoc(), request.getXMLBeanDoc().getAuthnRequest());
+assertThatCode(() -> validator.validate(request.getXMLBeanDoc(), verifiable)).doesNotThrowAnyException();
 }
+
+@Test
+public void shouldRejectAttributeConsumingServiceIndexWhenNotIgnored()
+{
+AuthnRequest request = new AuthnRequest(new NameID(SP_ENTITY_ID, SAMLConstants.NFORMAT_ENTITY).getXBean());
+request.getXMLBean().setAttributeConsumingServiceIndex(1);
+EnumeratedTrustChecker checker = new EnumeratedTrustChecker();
+checker.addTrustedIssuer(SP_ENTITY_ID, SP_RETURN_URL);
+WebAuthRequestValidator validator = new WebAuthRequestValidator(
+IDP_ENDPOINT_URI,
+checker,
+Duration.ofSeconds(5),
+new ReplayAttackChecker(),
+false);
+validator.addKnownRequester(SP_ENTITY_ID);
+XMLExpandedMessage verifiable = new XMLExpandedMessage(request.getXMLBeanDoc(), request.getXMLBeanDoc().getAuthnRequest());
+assertThatThrownBy(() -> validator.validate(request.getXMLBeanDoc(), verifiable))
+.isInstanceOf(SAMLResponderException.class)
+.hasMessageContaining("AttributeConsumingServiceIndex");
+}
+
+@Test
+public void shouldRespectFlagWhenAcsUrlIsPresent()
+{
+AuthnRequest request = new AuthnRequest(new NameID(SP_ENTITY_ID, SAMLConstants.NFORMAT_ENTITY).getXBean());
+request.getXMLBean().setAttributeConsumingServiceIndex(1);
+request.getXMLBean().setAssertionConsumerServiceURL(SP_RETURN_URL);
+
+EnumeratedTrustChecker checker = new EnumeratedTrustChecker();
+checker.addTrustedIssuer(SP_ENTITY_ID, SP_RETURN_URL);
+
+var okValidator = new WebAuthRequestValidator(
+IDP_ENDPOINT_URI, checker, Duration.ofSeconds(5), new ReplayAttackChecker(), true);
+var verifiable = new XMLExpandedMessage(request.getXMLBeanDoc(), request.getXMLBeanDoc().getAuthnRequest());
+assertThatCode(() -> okValidator.validate(request.getXMLBeanDoc(), verifiable)).doesNotThrowAnyException();
+
+var badValidator = new WebAuthRequestValidator(
+IDP_ENDPOINT_URI, checker, Duration.ofSeconds(5), new ReplayAttackChecker(), false);
+assertThatThrownBy(() -> badValidator.validate(request.getXMLBeanDoc(), verifiable))
+.isInstanceOf(SAMLResponderException.class)
+.hasMessageContaining("AttributeConsumingServiceIndex");
+}
+}
+

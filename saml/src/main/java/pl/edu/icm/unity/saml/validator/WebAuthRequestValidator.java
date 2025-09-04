@@ -23,17 +23,24 @@ import java.time.Duration;
 public class WebAuthRequestValidator extends UnityAuthnRequestValidator
 {
 
-	public WebAuthRequestValidator(String consumerEndpointUri, SamlTrustChecker trustChecker,
-				       Duration requestValidity, ReplayAttackChecker replayChecker,
-				       boolean ignoreAttributeConsumingServiceIndex)
-	{
-		super(consumerEndpointUri, trustChecker, requestValidity, replayChecker,
-				ignoreAttributeConsumingServiceIndex);
-	}
+public WebAuthRequestValidator(String consumerEndpointUri, SamlTrustChecker trustChecker,
+Duration requestValidity, ReplayAttackChecker replayChecker,
+boolean ignoreAttributeConsumingServiceIndex)
+{
+super(consumerEndpointUri, trustChecker, requestValidity, replayChecker,
+ignoreAttributeConsumingServiceIndex);
+}
 
-	@Override
-	public void validate(AuthnRequestDocument authenticationRequestDoc, SAMLVerifiableElement verifiableMessage) throws SAMLServerException
-	{
+/** Backward-compatible overload (pre-flag signature). */
+public WebAuthRequestValidator(String consumerEndpointUri, SamlTrustChecker trustChecker,
+Duration requestValidity, ReplayAttackChecker replayChecker)
+{
+this(consumerEndpointUri, trustChecker, requestValidity, replayChecker, false);
+}
+
+@Override
+public void validate(AuthnRequestDocument authenticationRequestDoc, SAMLVerifiableElement verifiableMessage) throws SAMLServerException
+{
 		AuthnRequestType aReq = authenticationRequestDoc.getAuthnRequest();
 		super.validate(authenticationRequestDoc, verifiableMessage);
 		if (aReq.getProtocolBinding() != null && 

@@ -171,9 +171,9 @@ public class SAMLIdPConfigurationParserTest
 
 	}
 	
-	@Test
-	public void shouldNotSetNotBeforeContraint() throws EngineException
-	{
+@Test
+public void shouldNotSetNotBeforeContraint() throws EngineException
+{
 		
 		Properties p = new Properties();
 		p.setProperty(P+ISSUER_URI, "issuerUri");
@@ -209,8 +209,9 @@ public class SAMLIdPConfigurationParserTest
 		return new UserImportConfigs(false, Set.of(new UserImportConfig("userImport.1.", "importer", "type")));
 	}
 
-	private static TranslationProfile getTranslationProfile()
-	{
-		return new TranslationProfile("Embedded", "", ProfileType.INPUT, List.of(new TranslationRule("true", new TranslationAction("includeInputProfile", "sys:saml"))));
-	}
+private static TranslationProfile getTranslationProfile()
+{
+return new TranslationProfile("Embedded", "", ProfileType.INPUT, List.of(new TranslationRule("true", new TranslationAction("includeInputProfile", "sys:saml"))));
+}
+
 }

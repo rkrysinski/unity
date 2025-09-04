@@ -8,7 +8,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 
 import org.junit.jupiter.api.Test;
 
@@ -31,12 +30,12 @@ public class AuthnRequestProcessingTest
 		EnumeratedTrustChecker authnTrustChecker = new EnumeratedTrustChecker();
 		authnTrustChecker.addTrustedIssuer("https://unity-sp.example", 
 				"https://unity-sp.example/return");
-	       WebAuthRequestValidator validator = new WebAuthRequestValidator(
-			       "https://unity-idp.example",
-			       authnTrustChecker,
-			       Duration.of(1000L, ChronoUnit.MILLIS),
-			       new ReplayAttackChecker(),
-			       false);
+		   WebAuthRequestValidator validator = new WebAuthRequestValidator(
+				   "https://unity-idp.example",
+				   authnTrustChecker,
+Duration.ofMillis(1000),
+				   new ReplayAttackChecker(),
+				   false);
 		validator.addKnownRequester("https://unity-sp.example");
 		
 		XMLExpandedMessage verifiableMessage = new XMLExpandedMessage(request.getXMLBeanDoc(), 
