@@ -27,7 +27,7 @@ import java.util.Set;
  * <li> subject must not be set
  * <li> requestedAuthnContext must not be set
  * <li> AssertionConsumerServiceIndex must not be set
- * <li> AttributeConsumingServiceIndex must not be set
+ * <li> AttributeConsumingServiceIndex must not be set (unless configured to ignore)
  * <li> AssertionConsumingServiceURL must be set if it is not configured.
  * </ul>
  * This class is binding transparent, it can be used as a base for binding specific validators.
@@ -36,14 +36,24 @@ import java.util.Set;
  */
 public class UnityAuthnRequestValidator extends SSOAuthnRequestValidator
 {
-	protected Set<String> knownRequesters;
-	
-	public UnityAuthnRequestValidator(String consumerEndpointUri, SamlTrustChecker trustChecker,
-	                                  Duration requestValidity, ReplayAttackChecker replayChecker)
-	{
-		super(consumerEndpointUri, trustChecker, requestValidity.toMillis(), replayChecker);
-		knownRequesters = new HashSet<>();
-	}
+protected Set<String> knownRequesters;
+private final boolean ignoreAttributeConsumingServiceIndex;
+
+public UnityAuthnRequestValidator(String consumerEndpointUri, SamlTrustChecker trustChecker,
+Duration requestValidity, ReplayAttackChecker replayChecker,
+boolean ignoreAttributeConsumingServiceIndex)
+{
+super(consumerEndpointUri, trustChecker, requestValidity.toMillis(), replayChecker);
+knownRequesters = new HashSet<>();
+this.ignoreAttributeConsumingServiceIndex = ignoreAttributeConsumingServiceIndex;
+}
+
+/** Backward-compatible overload: defaults to not ignoring AttributeConsumingServiceIndex. */
+public UnityAuthnRequestValidator(String consumerEndpointUri, SamlTrustChecker trustChecker,
+Duration requestValidity, ReplayAttackChecker replayChecker)
+{
+this(consumerEndpointUri, trustChecker, requestValidity, replayChecker, false);
+}
 
 	/**
 	 * Adds a new known requester, for which we have a response URL defined out of bands.
@@ -77,11 +87,12 @@ public class UnityAuthnRequestValidator extends SSOAuthnRequestValidator
 			throw new SAMLResponderException(SAMLConstants.SubStatus.STATUS2_REQUEST_UNSUPP,
 					"This implementation doesn't support authn " +
 					"requests with AssertionConsumerServiceIndex set.");
-		//4 - AttributeConsumingServiceIndex
-		if (req.isSetAttributeConsumingServiceIndex())
-			throw new SAMLResponderException(SAMLConstants.SubStatus.STATUS2_REQUEST_UNSUPP,
-					"This implementation doesn't support authn " +
-					"requests with AttributeConsumingServiceIndex set.");
+//4 - AttributeConsumingServiceIndex
+//When ignoreAttributeConsumingServiceIndex=true we accept requests even if it is set.
+if (req.isSetAttributeConsumingServiceIndex() && !ignoreAttributeConsumingServiceIndex)
+			   throw new SAMLResponderException(SAMLConstants.SubStatus.STATUS2_REQUEST_UNSUPP,
+					   "This implementation doesn't support authn " +
+					   "requests with AttributeConsumingServiceIndex set.");
 		//5 - AssertionConsumingServiceURL mandatory if we don't know the requester
 		if (!req.isSetAssertionConsumerServiceURL() && !knownRequesters.contains(
 				req.getIssuer().getStringValue()))

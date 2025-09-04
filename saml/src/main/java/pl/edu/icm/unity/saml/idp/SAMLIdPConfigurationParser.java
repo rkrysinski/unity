@@ -141,9 +141,11 @@ public class SAMLIdPConfigurationParser
 				.withPublishMetadata(samlProperties.getBooleanValue(SamlIdpProperties.PUBLISH_METADATA))
 				.withMetadataURLPath(samlProperties.getValue(SamlIdpProperties.METADATA_URL))
 				.withOurMetadataFilePath(samlProperties.getValue(SamlIdpProperties.METADATA_SOURCE))
-				.withSignMetadata(samlProperties.getBooleanValue(SamlIdpProperties.SIGN_METADATA))
-				.withSetNotBeforeConstraint(samlProperties.getBooleanValue(SamlIdpProperties.SET_NOT_BEFORE_CONSTRAINT))
-				.build();
+			       .withSignMetadata(samlProperties.getBooleanValue(SamlIdpProperties.SIGN_METADATA))
+			       .withSetNotBeforeConstraint(samlProperties.getBooleanValue(SamlIdpProperties.SET_NOT_BEFORE_CONSTRAINT))
+			       .withIgnoreAttributeConsumingServiceIndex(
+					       samlProperties.getBooleanValue(SamlIdpProperties.IGNORE_ATTRIBUTE_CONSUMING_SERVICE_INDEX))
+			       .build();
 	}
 
 	private Optional<AdditionalyAdvertisedCredential> getAdditionalyCredential(SamlIdpProperties samlProperties)

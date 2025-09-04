@@ -108,6 +108,7 @@ public class SAMLIdPConfigurationParserTest
 		p.setProperty(P + ALLOWED_SP_PREFIX + "1." + SOAP_LOGOUT_URL, "soapUrl");
 
 		p.setProperty(P+SET_NOT_BEFORE_CONSTRAINT, "true");
+		p.setProperty(P+IGNORE_ATTRIBUTE_CONSUMING_SERVICE_INDEX, "true");
 
 		PKIManagement pkiManagement = mock(PKIManagement.class);
 		X509Certificate x509Certificatecertificate = mock(X509Certificate.class);
@@ -166,12 +167,13 @@ public class SAMLIdPConfigurationParserTest
 						.build()
 		);
 		assertThat(configuration.setNotBeforeConstraint).isEqualTo(true);
+		assertThat(configuration.ignoreAttributeConsumingServiceIndex).isEqualTo(true);
 
 	}
 	
-	@Test
-	public void shouldNotSetNotBeforeContraint() throws EngineException
-	{
+@Test
+public void shouldNotSetNotBeforeContraint() throws EngineException
+{
 		
 		Properties p = new Properties();
 		p.setProperty(P+ISSUER_URI, "issuerUri");
@@ -207,8 +209,9 @@ public class SAMLIdPConfigurationParserTest
 		return new UserImportConfigs(false, Set.of(new UserImportConfig("userImport.1.", "importer", "type")));
 	}
 
-	private static TranslationProfile getTranslationProfile()
-	{
-		return new TranslationProfile("Embedded", "", ProfileType.INPUT, List.of(new TranslationRule("true", new TranslationAction("includeInputProfile", "sys:saml"))));
-	}
+private static TranslationProfile getTranslationProfile()
+{
+return new TranslationProfile("Embedded", "", ProfileType.INPUT, List.of(new TranslationRule("true", new TranslationAction("includeInputProfile", "sys:saml"))));
+}
+
 }
